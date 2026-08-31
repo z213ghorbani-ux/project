@@ -34,38 +34,6 @@ export default function DoctorsPanel() {
       file.size,
     );
 
-    if (file.type.startsWith("image/")) {
-      try {
-        const stampedBuffer = await stampImageBuffer(bytes, doctor);
-        const stampedName = `${uid}-stamped.png`;
-        await writeFile(path.join(uploadsDir, stampedName), stampedBuffer);
-        stampedFilePath = `/uploads/${stampedName}`;
-      } catch (err) {
-        console.error("stamp image failed:", err);
-      }
-    } else if (file.type === "application/pdf") {
-      console.log(
-        "در حال مهرزدن PDF... آیا پزشک امضا دارد؟",
-        !!doctor.signaturePath,
-      );
-      try {
-        const stampedBuffer = await stampPdfBuffer(bytes, doctor);
-        const stampedName = `${uid}-stamped.pdf`;
-        await writeFile(path.join(uploadsDir, stampedName), stampedBuffer);
-        stampedFilePath = `/uploads/${stampedName}`;
-        console.log("مهر PDF موفق بود:", stampedFilePath);
-      } catch (err: any) {
-        console.error("!!! خطای کامل مهرزدن PDF:", err?.message || err);
-        console.error(err);
-      }
-    }
-
-    console.log(
-      "نتیجه‌ی نهایی → filePath:",
-      filePath,
-      "| stampedFilePath:",
-      stampedFilePath,
-    );
     setBusyId(doctorId);
     const fd = new FormData();
     fd.append("file", file);
