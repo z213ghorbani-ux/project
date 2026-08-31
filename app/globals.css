@@ -1,0 +1,80 @@
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  font-family: "Vazirmatn", Tahoma, sans-serif;
+  background: #eff3f3;
+  color: #101826;
+}
+a {
+  color: inherit;
+}
+.mono {
+  font-family: "JetBrains Mono", monospace;
+}
+.landing-wrap,
+.login-wrap,
+.portal-wrap,
+.staff-wrap {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 40px 18px;
+}
+.staff-wrap {
+  max-width: 760px;
+}
+.card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 22px 20px;
+  box-shadow: 0 12px 30px -12px rgba(11, 22, 38, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.card input,
+.card select {
+  border: 1.5px solid #dce4e4;
+  border-radius: 9px;
+  padding: 11px 12px;
+  font-family: inherit;
+  font-size: 14px;
+}
+.card button {
+  background: #0b1626;
+  color: #fff;
+  border: none;
+  border-radius: 9px;
+  padding: 12px;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.card button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.error {
+  color: #ae3a2e;
+  font-size: 13px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-top: 12px;
+}
+th,
+td {
+  text-align: right;
+  padding: 10px 12px;
+  font-size: 13px;
+  border-bottom: 1px solid #e4e9e9;
+}
+th {
+  color: #5b6b7c;
+  font-size: 12px;
+}
