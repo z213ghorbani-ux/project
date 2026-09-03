@@ -164,18 +164,19 @@ export async function POST(request: NextRequest) {
   await createResult(result);
 
   const link = `${process.env.NEXT_PUBLIC_BASE_URL}/r/${code}`;
-  try {
+
+    /*try {
     await sendResultSms(phone, {
       patientName: name,
       doctorName: doctor.name,
       testType,
       link,
     });
-  } catch (smsError: unknown) {
+    } catch (smsError: unknown) {
     const message =
       smsError instanceof Error ? smsError.message : String(smsError);
     console.error("sendResultSms failed:", message);
-  }
+    }*/
 
   return NextResponse.json({ result: { ...result, doctor } });
 }
