@@ -70,8 +70,9 @@ export async function POST(request: NextRequest) {
         const stampedName = `${uid}-stamped.png`;
         await writeFile(path.join(uploadsDir, stampedName), stampedBuffer);
         stampedFilePath = `/uploads/${stampedName}`;
-      } catch (err) {
-        console.error("stamp image failed:", err);
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        console.error("stamp image failed:", message);
       }
     } else if (file.type === "application/pdf") {
       try {
@@ -79,8 +80,9 @@ export async function POST(request: NextRequest) {
         const stampedName = `${uid}-stamped.pdf`;
         await writeFile(path.join(uploadsDir, stampedName), stampedBuffer);
         stampedFilePath = `/uploads/${stampedName}`;
-      } catch (err: any) {
-        console.error("stamp pdf failed:", err?.message || err);
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        console.error("stamp pdf failed:", message);
       }
     }
   }
@@ -104,12 +106,18 @@ export async function POST(request: NextRequest) {
   await createResult(result);
 
   const link = `${process.env.NEXT_PUBLIC_BASE_URL}/r/${code}`;
-  await sendResultSms(phone, {
-    patientName: name,
-    doctorName: doctor.name,
-    testType,
-    link,
-  });
+  try {
+    await sendResultSms(phone, {
+      patientName: name,
+      doctorName: doctor.name,
+      testType,
+      link,
+    });
+  } catch (smsError: unknown) {
+    const message =
+      smsError instanceof Error ? smsError.message : String(smsError);
+    console.error("sendResultSms failed:", message);
+  }
 
   return NextResponse.json({ result: { ...result, doctor } });
 }

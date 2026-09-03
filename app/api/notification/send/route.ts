@@ -1,49 +1,27 @@
-interface SmsParams {
-  patientName: string;
-  doctorName: string;
-  testType: string;
-  link: string;
-}
+import { NextRequest, NextResponse } from "next/server";
+import { sendResultSms } from "@/lib/sms";
 
-export async function sendResultSms(
-  phone: string,
-  { patientName, doctorName, testType, link }: SmsParams,
-) {
-  const apiKey = process.env.SMSIR_API_KEY;
-  const lineNumber = process.env.SMSIR_LINE_NUMBER;
-
-  const message =
-    `سلام ${patientName} عزیز؛ جواب ${testType} شما توسط ${doctorName} آماده شد.\n` +
-    `مشاهده: ${link}\n` +
-    `کلینیک آریتمی قلب`;
-
-  if (!apiKey || !lineNumber) {
-    console.log("[SMS DEV] would send to", phone, ":\n", message);
-    return { dev: true };
-  }
-
+export async function POST(request: NextRequest) {
   try {
-    const res = await fetch("https://api.sms.ir/v1/send/bulk", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        "X-API-KEY": apiKey,
-      },
-      body: JSON.stringify({
-        lineNumber: Number(lineNumber),
-        messageText: message,
-        mobiles: [phone],
-      }),
-    });
+    const body = await request.json();
+    const { phone, patientName, doctorName, testType, link } = body;
 
-    const data = await res.json();
-    if (data.status !== 1) {
-      console.error("ارسال پیامک ناموفق بود:", data.message, data);
+    if (!phone || !patientName || !doctorName || !testType || !link) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 },
+      );
     }
-    return data;
-  } catch (err) {
-    console.error("خطا در اتصال به sms.ir:", err);
-    return null;
+
+    await sendResultSms(phone, { patientName, doctorName, testType, link });
+
+    return NextResponse.json({ success: true });
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error("Notification send failed:", msg);
+    return NextResponse.json(
+      { error: "Failed to send notification" },
+      { status: 500 },
+    );
   }
 }

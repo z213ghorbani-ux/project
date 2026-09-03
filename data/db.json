@@ -82,22 +82,7 @@
       "specialty": "متخصص قلب و عروق — فوق‌تخصص آریتمی"
     }
   ],
-  "results": [
-    {
-      "id": "78da0860-cfd0-46b6-b3a3-df3541526d7f",
-      "code": "AR-8404-5D6D4E",
-      "patientName": "علی قربانی",
-      "patientPhone": "09036874359",
-      "nationalIdLast4": "8404",
-      "doctorId": 10,
-      "testType": "اکوکاردیوگرافی",
-      "filePath": "/uploads/4d0b90f5-baaf-46c9-aba6-b1bf920d3745-original.pdf",
-      "fileMime": "application/pdf",
-      "stampedFilePath": "/uploads/4d0b90f5-baaf-46c9-aba6-b1bf920d3745-stamped.pdf",
-      "createdAt": "2026-08-30T19:02:03.627Z",
-      "viewedAt": "2026-08-30T19:02:14.115Z"
-    }
-  ],
+  "results": [],
   "accessLogs": [
     {
       "id": "c35de9b8-b21e-4757-92b7-6680ecaebe64",
@@ -238,6 +223,13 @@
       "success": true,
       "ip": "::1",
       "createdAt": "2026-09-02T16:13:52.576Z"
+    },
+    {
+      "id": "3f9aa072-8928-4558-8371-c8e52dc3971a",
+      "resultId": "3adaadba-9e81-4578-8ec9-ade3d17e59b3",
+      "success": true,
+      "ip": "::1",
+      "createdAt": "2026-09-03T10:18:31.477Z"
     }
   ]
 }
