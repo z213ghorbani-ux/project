@@ -243,51 +243,120 @@ export default function StaffDashboard() {
     else alert("حذف ناموفق بود.");
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    if (busy) return;
+
     setBusy(true);
 
-    const testTypeValue = buildTestTypeValue(form);
-    const { testTypes, otherText, ...rest } = form;
-    const payload = { ...rest, testType: testTypeValue };
+    try {
+      const testTypeValue = buildTestTypeValue(form);
+      const { testTypes, otherText, ...rest } = form;
+      const payload = {
+        ...rest,
+        testType: testTypeValue,
+      };
 
-    if (editingId) {
-      const res = await fetch(`/api/results/${editingId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+      // حالت ویرایش
+      if (editingId) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+        try {
+          const res = await fetch(`/api/results/${editingId}`, {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+            signal: controller.signal,
+          });
+
+          if (!res.ok) {
+            const errorText = await res.text();
+            console.error("PATCH error:", res.status, errorText);
+            alert(`ویرایش ناموفق بود. کد خطا: ${res.status}`);
+            return;
+          }
+
+          cancelEdit();
+          await loadData();
+        } finally {
+          clearTimeout(timeoutId);
+        }
+
+        return;
+      }
+
+      // حالت ثبت جدید
+      const fd = new FormData();
+
+      Object.entries(payload).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          fd.append(key, String(value));
+        }
       });
+
+      const attachmentsMeta = form.testTypes.map((type) => ({
+        label: displayLabelFor(type, form),
+        hasFile: Boolean(filesByType[type]),
+      }));
+
+      fd.append("attachmentsMeta", JSON.stringify(attachmentsMeta));
+
+      form.testTypes.forEach((type) => {
+        const file = filesByType[type];
+
+        if (file) {
+          fd.append("files", file, file.name);
+        }
+      });
+
+      console.log("Sending POST /api/results");
+      console.log("Payload:", payload);
+      console.log("Attachments:", attachmentsMeta);
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+      try {
+        const res = await fetch("/api/results", {
+          method: "POST",
+          body: fd,
+          signal: controller.signal,
+        });
+
+        if (!res.ok) {
+          const errorText = await res.text();
+
+          console.error("POST error:", {
+            status: res.status,
+            statusText: res.statusText,
+            body: errorText,
+          });
+
+          alert(`ثبت جواب ناموفق بود. کد خطا: ${res.status}`);
+          return;
+        }
+
+        setForm(emptyForm);
+        setFilesByType({});
+        await loadData();
+      } finally {
+        clearTimeout(timeoutId);
+      }
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") {
+        console.error("Request timeout");
+        alert("سرور در زمان مشخص پاسخ نداد.");
+      } else {
+        console.error("Submit error:", error);
+        alert("ارتباط با سرور برقرار نشد. لاگ‌های سرور را بررسی کنید.");
+      }
+    } finally {
       setBusy(false);
-      if (res.ok) {
-        cancelEdit();
-        loadData();
-      } else alert("ویرایش ناموفق بود.");
-      return;
     }
-
-    const fd = new FormData();
-    Object.entries(payload).forEach(([k, v]) => fd.append(k, v as string));
-
-    // متادیتای پیوست‌ها به همون ترتیب انتخاب نوع آزمون‌ها
-    const attachmentsMeta = form.testTypes.map((t) => ({
-      label: displayLabelFor(t, form),
-      hasFile: !!filesByType[t],
-    }));
-    fd.append("attachmentsMeta", JSON.stringify(attachmentsMeta));
-
-    // فقط فایل‌هایی که واقعاً انتخاب شدن، به همون ترتیب ضمیمه می‌شن
-    form.testTypes.forEach((t) => {
-      const file = filesByType[t];
-      if (file) fd.append("files", file);
-    });
-
-    const res = await fetch("/api/results", { method: "POST", body: fd });
-    setBusy(false);
-    if (res.ok) {
-      setForm(emptyForm);
-      setFilesByType({});
-      loadData();
-    } else alert("ثبت جواب ناموفق بود.");
   }
 
   const inputClass =
