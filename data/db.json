@@ -82,7 +82,33 @@
       "specialty": "متخصص قلب و عروق — فوق‌تخصص آریتمی"
     }
   ],
-  "results": [],
+  "results": [
+    {
+      "id": "8f01cc0a-14ac-4a63-942d-540cc1f55b1a",
+      "code": "AR-8404-47267D",
+      "patientName": "علی قربانی",
+      "patientPhone": "09036874359",
+      "nationalIdLast4": "8404",
+      "doctorId": 2,
+      "testType": "هولتر ۲۴ ساعته، نوار قلب (ECG)",
+      "attachments": [
+        {
+          "label": "هولتر ۲۴ ساعته",
+          "filePath": "/uploads/bc0aaa7c-28ba-40bd-9165-4aedb1e3de40-original.pdf",
+          "fileMime": "application/pdf",
+          "stampedFilePath": "/uploads/bc0aaa7c-28ba-40bd-9165-4aedb1e3de40-stamped.pdf"
+        },
+        {
+          "label": "نوار قلب (ECG)",
+          "filePath": "/uploads/2580abc6-47c4-42b7-916b-66172c95b2c1-original.pdf",
+          "fileMime": "application/pdf",
+          "stampedFilePath": "/uploads/2580abc6-47c4-42b7-916b-66172c95b2c1-stamped.pdf"
+        }
+      ],
+      "createdAt": "2026-09-03T18:04:24.974Z",
+      "viewedAt": "2026-09-03T18:04:30.800Z"
+    }
+  ],
   "accessLogs": [
     {
       "id": "c35de9b8-b21e-4757-92b7-6680ecaebe64",
@@ -300,6 +326,13 @@
       "success": true,
       "ip": "::1",
       "createdAt": "2026-09-03T15:55:05.617Z"
+    },
+    {
+      "id": "0fed26aa-5b05-4212-849f-a890634e0bb0",
+      "resultId": "8f01cc0a-14ac-4a63-942d-540cc1f55b1a",
+      "success": true,
+      "ip": "::1",
+      "createdAt": "2026-09-03T18:04:30.792Z"
     }
   ]
 }
