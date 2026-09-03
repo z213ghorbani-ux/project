@@ -2,6 +2,7 @@
   box-sizing: border-box;
 }
 body {
+  position: relative;
   margin: 0;
   font-family: "Vazirmatn", Tahoma, sans-serif;
   background: #eff3f3;
@@ -77,4 +78,20 @@ td {
 th {
   color: #5b6b7c;
   font-size: 12px;
+}
+/* این بخش رو به انتهای globals.css پروژه‌تون اضافه کنید */
+
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image: url("/logo-watermark.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: min(480px, 55vw) auto;
+  opacity: 0.06;
+  filter: grayscale(100%);
+  pointer-events: none;
 }

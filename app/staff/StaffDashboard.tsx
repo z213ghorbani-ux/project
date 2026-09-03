@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const TEST_TYPES = [
   "هولتر ۲۴ ساعته",
@@ -8,6 +8,8 @@ const TEST_TYPES = [
   "تست ورزش",
   "سایر",
 ];
+
+const OTHER_LABEL = "سایر";
 
 interface Doctor {
   id: number;
@@ -29,14 +31,134 @@ const emptyForm = {
   phone: "",
   nid: "",
   doctorId: "",
-  testType: TEST_TYPES[0],
+  testTypes: [] as string[],
+  otherText: "",
 };
+
+// دراپ‌داون چک‌باکسی برای انتخاب چندتایی نوع آزمون + فایل جداگانه برای هر آزمون + گزینه‌ی «سایر»
+function TestTypeMultiSelect({
+  selected,
+  onToggle,
+  otherText,
+  onOtherTextChange,
+  filesByType,
+  onFileChange,
+  filesDisabled,
+  inputClass,
+}: {
+  selected: string[];
+  onToggle: (value: string) => void;
+  otherText: string;
+  onOtherTextChange: (value: string) => void;
+  filesByType: Record<string, File | null>;
+  onFileChange: (type: string, file: File | null) => void;
+  filesDisabled: boolean;
+  inputClass: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        wrapperRef.current &&
+        !wrapperRef.current.contains(event.target as Node)
+      ) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const label =
+    selected.length === 0 ? "نوع آزمون را انتخاب کنید" : selected.join("، ");
+
+  return (
+    <div ref={wrapperRef} className="relative md:col-span-2">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className={`${inputClass} w-full text-right truncate`}
+      >
+        {label}
+      </button>
+
+      {open && (
+        <div className="absolute z-20 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-80 overflow-y-auto">
+          {TEST_TYPES.map((t) => {
+            const checked = selected.includes(t);
+            return (
+              <div key={t} className="border-b border-gray-50 last:border-none">
+                <label className="flex items-center gap-2 px-3 py-2 text-sm cursor-pointer hover:bg-gray-50">
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={() => onToggle(t)}
+                  />
+                  <span className="flex-1">{t}</span>
+                  {checked && !filesDisabled && (
+                    <input
+                      type="file"
+                      accept="image/*,application/pdf"
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={(e) =>
+                        onFileChange(t, e.target.files?.[0] ?? null)
+                      }
+                      className="text-xs w-32"
+                    />
+                  )}
+                  {checked && filesDisabled && (
+                    <span className="text-xs text-gray-400">
+                      (فایل ثابت می‌ماند)
+                    </span>
+                  )}
+                </label>
+
+                {checked && t === OTHER_LABEL && (
+                  <div className="px-3 pb-2">
+                    <input
+                      type="text"
+                      className={`${inputClass} w-full`}
+                      placeholder="نوع آزمون را بنویسید"
+                      value={otherText}
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={(e) => onOtherTextChange(e.target.value)}
+                    />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* خلاصه‌ی فایل‌های انتخاب‌شده برای هر آزمون */}
+      {!filesDisabled && selected.some((t) => filesByType[t]) && (
+        <ul className="mt-2 text-xs text-gray-600 space-y-1">
+          {selected
+            .filter((t) => filesByType[t])
+            .map((t) => (
+              <li key={t} className="flex items-center justify-between">
+                <span>{t === OTHER_LABEL ? otherText || OTHER_LABEL : t}</span>
+                <span className="truncate max-w-[140px]">
+                  {filesByType[t]?.name}
+                </span>
+              </li>
+            ))}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 export default function StaffDashboard() {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [results, setResults] = useState<ResultRow[]>([]);
   const [form, setForm] = useState(emptyForm);
-  const [file, setFile] = useState<File | null>(null);
+  const [filesByType, setFilesByType] = useState<Record<string, File | null>>(
+    {},
+  );
   const [busy, setBusy] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -53,23 +175,65 @@ export default function StaffDashboard() {
     loadData();
   }, []);
 
+  function toggleTestType(value: string) {
+    setForm((prev) => {
+      const exists = prev.testTypes.includes(value);
+      const testTypes = exists
+        ? prev.testTypes.filter((v) => v !== value)
+        : [...prev.testTypes, value];
+      const otherText = testTypes.includes(OTHER_LABEL) ? prev.otherText : "";
+      return { ...prev, testTypes, otherText };
+    });
+    // اگه تیک آزمون برداشته شد، فایل مربوطه‌اش هم پاک بشه
+    setFilesByType((prev) => {
+      if (!(value in prev)) return prev;
+      const next = { ...prev };
+      delete next[value];
+      return next;
+    });
+  }
+
+  function handleFileChange(type: string, file: File | null) {
+    setFilesByType((prev) => ({ ...prev, [type]: file }));
+  }
+
+  function displayLabelFor(type: string, f: typeof form) {
+    return type === OTHER_LABEL ? f.otherText.trim() || OTHER_LABEL : type;
+  }
+
+  // ساخت رشته‌ی نمایشی نوع آزمون (برای ستون جدول و سازگاری با فیلد قبلی testType)
+  function buildTestTypeValue(f: typeof form) {
+    return f.testTypes
+      .map((t) => displayLabelFor(t, f))
+      .filter(Boolean)
+      .join("، ");
+  }
+
   function startEdit(r: ResultRow) {
     setEditingId(r.id);
+    const existingTypes = r.testType
+      ? r.testType.split("،").map((t) => t.trim())
+      : [];
+    const knownTypes = existingTypes.filter((t) => TEST_TYPES.includes(t));
+    const unknownTypes = existingTypes.filter((t) => !TEST_TYPES.includes(t));
     setForm({
       name: r.patientName,
       phone: r.patientPhone,
       nid: r.nationalIdLast4,
       doctorId: String(r.doctorId),
-      testType: r.testType,
+      testTypes: unknownTypes.length
+        ? [...knownTypes, OTHER_LABEL]
+        : knownTypes,
+      otherText: unknownTypes.join("، "),
     });
-    setFile(null);
+    setFilesByType({});
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function cancelEdit() {
     setEditingId(null);
     setForm(emptyForm);
-    setFile(null);
+    setFilesByType({});
   }
 
   async function handleDelete(id: string) {
@@ -83,11 +247,15 @@ export default function StaffDashboard() {
     e.preventDefault();
     setBusy(true);
 
+    const testTypeValue = buildTestTypeValue(form);
+    const { testTypes, otherText, ...rest } = form;
+    const payload = { ...rest, testType: testTypeValue };
+
     if (editingId) {
       const res = await fetch(`/api/results/${editingId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
       setBusy(false);
       if (res.ok) {
@@ -98,13 +266,26 @@ export default function StaffDashboard() {
     }
 
     const fd = new FormData();
-    Object.entries(form).forEach(([k, v]) => fd.append(k, v));
-    if (file) fd.append("file", file);
+    Object.entries(payload).forEach(([k, v]) => fd.append(k, v as string));
+
+    // متادیتای پیوست‌ها به همون ترتیب انتخاب نوع آزمون‌ها
+    const attachmentsMeta = form.testTypes.map((t) => ({
+      label: displayLabelFor(t, form),
+      hasFile: !!filesByType[t],
+    }));
+    fd.append("attachmentsMeta", JSON.stringify(attachmentsMeta));
+
+    // فقط فایل‌هایی که واقعاً انتخاب شدن، به همون ترتیب ضمیمه می‌شن
+    form.testTypes.forEach((t) => {
+      const file = filesByType[t];
+      if (file) fd.append("files", file);
+    });
+
     const res = await fetch("/api/results", { method: "POST", body: fd });
     setBusy(false);
     if (res.ok) {
       setForm(emptyForm);
-      setFile(null);
+      setFilesByType({});
       loadData();
     } else alert("ثبت جواب ناموفق بود.");
   }
@@ -127,7 +308,7 @@ export default function StaffDashboard() {
       >
         {editingId && (
           <div className="md:col-span-2 bg-yellow-50 text-yellow-800 text-sm rounded-md px-3 py-2">
-            در حال ویرایش جواب — فایل قبلی تغییر نمی‌کند.
+            در حال ویرایش جواب — فایل‌های قبلی تغییر نمی‌کنند.
           </div>
         )}
         <input
@@ -165,23 +346,16 @@ export default function StaffDashboard() {
             </option>
           ))}
         </select>
-        <select
-          className={inputClass}
-          value={form.testType}
-          onChange={(e) => setForm({ ...form, testType: e.target.value })}
-        >
-          {TEST_TYPES.map((t) => (
-            <option key={t}>{t}</option>
-          ))}
-        </select>
-        {!editingId && (
-          <input
-            type="file"
-            accept="image/*,application/pdf"
-            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-            className="text-sm md:col-span-2"
-          />
-        )}
+        <TestTypeMultiSelect
+          selected={form.testTypes}
+          onToggle={toggleTestType}
+          otherText={form.otherText}
+          onOtherTextChange={(v) => setForm({ ...form, otherText: v })}
+          filesByType={filesByType}
+          onFileChange={handleFileChange}
+          filesDisabled={!!editingId}
+          inputClass={inputClass}
+        />
         <div className="md:col-span-2 flex gap-2">
           <button
             type="submit"

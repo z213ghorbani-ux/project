@@ -7,7 +7,16 @@ interface Doctor {
   specialty: string;
   signaturePath?: string | null;
 }
-interface Result {
+
+// هر پیوست مربوط به یک نوع آزمون خاص است
+export interface Attachment {
+  label: string; // نوع آزمون (مثلاً «نوار قلب (ECG)» یا متن سفارشی «سایر»)
+  filePath: string | null;
+  fileMime: string | null;
+  stampedFilePath: string | null;
+}
+
+export interface Result {
   id: string;
   code: string;
   patientName: string;
@@ -15,12 +24,11 @@ interface Result {
   nationalIdLast4: string;
   doctorId: number;
   testType: string;
-  filePath: string | null;
-  fileMime: string | null;
-  stampedFilePath: string | null;
+  attachments: Attachment[];
   createdAt: string;
   viewedAt: string | null;
 }
+
 interface AccessLog {
   id: string;
   resultId: string;
@@ -56,7 +64,7 @@ const DEFAULT_DOCTORS: Doctor[] = [
   id: i + 1,
   name,
   specialty: "متخصص قلب و عروق — فوق‌تخصص آریتمی",
-  signaturePath: null
+  signaturePath: null,
 }));
 
 async function ensureDb() {
@@ -142,7 +150,10 @@ export async function deleteResult(id: string) {
   db.results = db.results.filter((r) => r.id !== id);
   await writeDb(db);
 }
-export async function updateDoctorSignature(id: number, signaturePath: string | null) {
+export async function updateDoctorSignature(
+  id: number,
+  signaturePath: string | null,
+) {
   const db = await readDb();
   const idx = db.doctors.findIndex((d) => d.id === id);
   if (idx === -1) return null;

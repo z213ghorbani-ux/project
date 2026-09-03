@@ -51,7 +51,10 @@ export async function POST(request: NextRequest) {
     doctorSpecialty: result.doctor.specialty,
     testType: result.testType,
     createdAt: result.createdAt,
-    fileUrl: result.stampedFilePath || result.filePath,
-    fileMime: result.fileMime,
+    attachments: (result.attachments || []).map((a) => ({
+      label: a.label,
+      fileUrl: a.stampedFilePath || a.filePath,
+      fileMime: a.fileMime,
+    })),
   });
 }

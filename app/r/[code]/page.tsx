@@ -2,13 +2,18 @@
 import { useState } from "react";
 import { useParams } from "next/navigation";
 
+interface Attachment {
+  label: string; // نوع آزمون مربوط به این فایل
+  fileUrl: string | null;
+  fileMime: string | null;
+}
+
 interface ResultData {
   patientName: string;
   doctorName: string;
   testType: string;
   createdAt: string;
-  fileUrl: string | null;
-  fileMime: string | null;
+  attachments: Attachment[];
 }
 
 export default function ResultPage() {
@@ -38,6 +43,8 @@ export default function ResultPage() {
   }
 
   if (result) {
+    const hasAttachments = result.attachments?.some((a) => a.fileUrl);
+
     return (
       <div className="portal-wrap">
         <div className="card">
@@ -54,19 +61,34 @@ export default function ResultPage() {
             <strong>تاریخ:</strong>{" "}
             {new Date(result.createdAt).toLocaleDateString("fa-IR")}
           </p>
-          {result.fileUrl && result.fileMime?.startsWith("image/") && (
-            <img
-              src={result.fileUrl}
-              alt="جواب آزمون"
-              style={{ width: "100%", borderRadius: 8 }}
-            />
+
+          {hasAttachments ? (
+            <div className="attachments">
+              {result.attachments
+                .filter((a) => a.fileUrl)
+                .map((a, i) => (
+                  <div key={i} className="attachment-item">
+                    <p className="attachment-label">
+                      <strong>{a.label}</strong>
+                    </p>
+                    {a.fileMime?.startsWith("image/") && (
+                      <img
+                        src={a.fileUrl!}
+                        alt={a.label}
+                        style={{ width: "100%", borderRadius: 8 }}
+                      />
+                    )}
+                    {a.fileMime === "application/pdf" && (
+                      <a href={a.fileUrl!} target="_blank" rel="noreferrer">
+                        دانلود فایل جواب ({a.label}) — PDF
+                      </a>
+                    )}
+                  </div>
+                ))}
+            </div>
+          ) : (
+            <p>فایلی برای این جواب ثبت نشده است.</p>
           )}
-          {result.fileUrl && result.fileMime === "application/pdf" && (
-            <a href={result.fileUrl} target="_blank" rel="noreferrer">
-              دانلود فایل جواب (PDF)
-            </a>
-          )}
-          {!result.fileUrl && <p>فایلی برای این جواب ثبت نشده است.</p>}
         </div>
       </div>
     );
