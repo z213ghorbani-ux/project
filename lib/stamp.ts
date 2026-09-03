@@ -77,8 +77,8 @@ export async function stampPdfBuffer(
   const stampHeight = (pngImage.height / pngImage.width) * stampWidth;
 
   lastPage.drawImage(pngImage, {
-    x: width - stampWidth - 24,
-    y: 24,
+    x: width - stampWidth - 80,
+    y: 140,
     width: stampWidth,
     height: stampHeight,
   });

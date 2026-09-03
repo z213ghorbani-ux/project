@@ -82,39 +82,7 @@
       "specialty": "متخصص قلب و عروق — فوق‌تخصص آریتمی"
     }
   ],
-  "results": [
-    {
-      "id": "4338d5db-03b5-457c-b9ad-d53d9cb0fdf6",
-      "code": "AR-8404-7FC95D",
-      "patientName": "علی قربانی",
-      "patientPhone": "09036874359",
-      "nationalIdLast4": "8404",
-      "doctorId": 2,
-      "testType": "هولتر ۲۴ ساعته، نوار قلب (ECG)، تست=",
-      "attachments": [
-        {
-          "label": "هولتر ۲۴ ساعته",
-          "filePath": "/uploads/c4f6045c-33b6-4325-83c8-d86c78cab238-original.pdf",
-          "fileMime": "application/pdf",
-          "stampedFilePath": "/uploads/c4f6045c-33b6-4325-83c8-d86c78cab238-stamped.pdf"
-        },
-        {
-          "label": "نوار قلب (ECG)",
-          "filePath": "/uploads/47819630-fb86-48e8-b7e5-5a552e5d38a8-original.pdf",
-          "fileMime": "application/pdf",
-          "stampedFilePath": "/uploads/47819630-fb86-48e8-b7e5-5a552e5d38a8-stamped.pdf"
-        },
-        {
-          "label": "تست=",
-          "filePath": "/uploads/b3406bc9-da44-48eb-a51b-8bea0c1e6a6a-original.pdf",
-          "fileMime": "application/pdf",
-          "stampedFilePath": "/uploads/b3406bc9-da44-48eb-a51b-8bea0c1e6a6a-stamped.pdf"
-        }
-      ],
-      "createdAt": "2026-09-03T12:01:52.508Z",
-      "viewedAt": "2026-09-03T12:01:59.384Z"
-    }
-  ],
+  "results": [],
   "accessLogs": [
     {
       "id": "c35de9b8-b21e-4757-92b7-6680ecaebe64",
@@ -297,6 +265,41 @@
       "success": true,
       "ip": "::1",
       "createdAt": "2026-09-03T12:01:59.381Z"
+    },
+    {
+      "id": "71a26ae3-8b61-4abb-b097-8ab0be83d7fe",
+      "resultId": "3700b925-bbce-4875-8c54-6eaf0476f22b",
+      "success": true,
+      "ip": "::1",
+      "createdAt": "2026-09-03T15:50:56.663Z"
+    },
+    {
+      "id": "550d0287-b7dc-4c79-bb60-746c1a7c6191",
+      "resultId": "1908cf36-64a2-4228-8355-960d0694d5a2",
+      "success": true,
+      "ip": "::1",
+      "createdAt": "2026-09-03T15:51:58.590Z"
+    },
+    {
+      "id": "1b20514c-6007-4d0a-a890-c1ffa6542246",
+      "resultId": "ec2d9838-ab20-405e-8bac-60827b68adcc",
+      "success": true,
+      "ip": "::1",
+      "createdAt": "2026-09-03T15:53:05.031Z"
+    },
+    {
+      "id": "c488c929-af98-449f-a117-97008172bdd0",
+      "resultId": "66a9b89e-83e1-41a8-93aa-c4c25573ff12",
+      "success": true,
+      "ip": "::1",
+      "createdAt": "2026-09-03T15:54:06.090Z"
+    },
+    {
+      "id": "4e668bb5-4da1-4bca-ae29-137d5465adda",
+      "resultId": "b7dfc2df-1ad6-474d-b073-5413ddf054b2",
+      "success": true,
+      "ip": "::1",
+      "createdAt": "2026-09-03T15:55:05.617Z"
     }
   ]
 }
