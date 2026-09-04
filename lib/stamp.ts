@@ -10,6 +10,9 @@ interface Doctor {
   signaturePath?: string | null;
 }
 
+// آزمون‌هایی که مهرشان باید بالا-راستِ صفحه‌ی اول باشد
+const TOP_RIGHT_TEST_TYPES = new Set(["نوار قلب (ECG)", "تست ورزش"]);
+
 // Fallback stamp used only if the doctor hasn't uploaded a real signature yet
 export function stampSvg(doctor: Doctor): string {
   const rotation =
@@ -60,25 +63,30 @@ export async function stampImageBuffer(
     .toBuffer();
 }
 
-// Stamps a PDF result — draws the signature on the bottom-right of the last page.
+// Stamps a PDF result — draws the signature on the first page.
+// Position depends on testType: ECG / تست ورزش -> بالا-راست، بقیه -> پایین-راست.
 export async function stampPdfBuffer(
   pdfBuffer: Buffer,
   doctor: Doctor,
+  testType?: string,
 ): Promise<Buffer> {
   const stampPngBuffer = await getStampPngBuffer(doctor);
   const pdfDoc = await PDFDocument.load(pdfBuffer);
   const pngImage = await pdfDoc.embedPng(stampPngBuffer);
 
   const pages = pdfDoc.getPages();
-  const lastPage = pages[pages.length - 1];
-  const { width } = lastPage.getSize();
+  const firstPage = pages[0];
+  const { width, height } = firstPage.getSize();
 
   const stampWidth = 110;
   const stampHeight = (pngImage.height / pngImage.width) * stampWidth;
 
-  lastPage.drawImage(pngImage, {
+  const isTopRight = testType ? TOP_RIGHT_TEST_TYPES.has(testType) : false;
+  const y = isTopRight ? height - stampHeight - 80 : 140;
+
+  firstPage.drawImage(pngImage, {
     x: width - stampWidth - 80,
-    y: 140,
+    y,
     width: stampWidth,
     height: stampHeight,
   });

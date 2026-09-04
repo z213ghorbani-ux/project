@@ -43,6 +43,7 @@ async function buildAttachment(
   uploadsDir: string,
   doctor: DoctorLike,
   label: string,
+  testType: string,
 ): Promise<Attachment> {
   const bytes = Buffer.from(await file.arrayBuffer());
   const ext =
@@ -67,7 +68,7 @@ async function buildAttachment(
     }
   } else if (file.type === "application/pdf") {
     try {
-      const stampedBuffer = await stampPdfBuffer(bytes, doctor);
+      const stampedBuffer = await stampPdfBuffer(bytes, doctor, testType);
       const stampedName = `${uid}-stamped.pdf`;
       await writeFile(path.join(uploadsDir, stampedName), stampedBuffer);
       stampedFilePath = `/uploads/${stampedName}`;
@@ -165,18 +166,18 @@ export async function POST(request: NextRequest) {
 
   const link = `${process.env.NEXT_PUBLIC_BASE_URL}/r/${code}`;
 
-    try {
+  try {
     await sendResultSms(phone, {
       patientName: name,
       doctorName: doctor.name,
       testType,
       link,
     });
-    } catch (smsError: unknown) {
+  } catch (smsError: unknown) {
     const message =
       smsError instanceof Error ? smsError.message : String(smsError);
     console.error("sendResultSms failed:", message);
-    }
+  }
 
   return NextResponse.json({ result: { ...result, doctor } });
 }
