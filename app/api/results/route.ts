@@ -13,8 +13,8 @@ import { isStaffAuthed } from "../../../lib/requireStaff";
 import { sendResultSms } from "../../../lib/sms";
 import { stampImageBuffer, stampPdfBuffer } from "../../../lib/stamp";
 
-function generateCode(nid: string) {
-  return `AR-${nid}-${crypto.randomBytes(3).toString("hex").toUpperCase()}`;
+function generateCode() {
+  return `AR-${crypto.randomBytes(5).toString("hex").toUpperCase()}`;
 }
 
 export async function GET() {
@@ -144,7 +144,7 @@ export async function POST(request: NextRequest) {
     }
 
     attachments.push(
-      await buildAttachment(file, uploadsDir, doctor, meta.label),
+      await buildAttachment(file, uploadsDir, doctor, meta.label, testType),
     );
   }
 

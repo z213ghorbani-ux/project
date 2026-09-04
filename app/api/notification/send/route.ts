@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendResultSms } from "@/lib/sms";
+import { isStaffAuthed } from "@/lib/requireStaff"; // مسیر دقیق رو با فایل‌های دیگه چک کن
 
 export async function POST(request: NextRequest) {
   try {
+    const authed = await isStaffAuthed();
+    if (!authed) {
+      return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
     const { phone, patientName, doctorName, testType, link } = body;
 
