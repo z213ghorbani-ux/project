@@ -148,7 +148,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const code = generateCode(nid);
+  const code = generateCode();
   const result = {
     id: crypto.randomUUID(),
     code,
